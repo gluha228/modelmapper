@@ -43,10 +43,10 @@ import org.modelmapper.spi.PropertyMapping;
 
 /**
  * Builds and populates implicit property mappings for a TypeMap.
- * 
+ *
  * @param <S> source type
  * @param <D> destination type
- * 
+ *
  * @author Jonathan Halterman
  */
 class ImplicitMappingBuilder<S, D> {
@@ -87,14 +87,17 @@ class ImplicitMappingBuilder<S, D> {
   }
 
   void build() {
-    matchDestination(TypeInfoRegistry.typeInfoFor(typeMap.getDestinationType(), configuration));
+    matchDestination(TypeInfoRegistry.typeInfoFor(typeMap.getDestinationType(), configuration), 0,  0);
   }
 
   /**
    * Matches the {@code destinationTypeInfo}'s mutator hierarchy hierarchy to the
    * {@code sourceTypeInfo}'s accessor hierarchy.
    */
-  private void matchDestination(TypeInfo<?> destinationTypeInfo) {
+  private void matchDestination(TypeInfo<?> destinationTypeInfo, int destinationDepth, int sourceDepth) {
+    if (destinationDepth > 5) {
+      return;
+    }
     destinationTypes.add(destinationTypeInfo.getType());
 
     for (Map.Entry<String, Mutator> entry : destinationTypeInfo.getMutators().entrySet()) {
@@ -105,7 +108,7 @@ class ImplicitMappingBuilder<S, D> {
       // Skip explicit mappings
       Mapping existingMapping = typeMap.mappingFor(destPath);
       if (existingMapping == null) {
-        matchSource(sourceTypeInfo, mutator, false);
+        matchSource(sourceTypeInfo, mutator, false, sourceDepth);
         propertyNameInfo.clearSource();
         sourceTypes.clear();
       }
@@ -149,9 +152,8 @@ class ImplicitMappingBuilder<S, D> {
           && !typeMap.isSkipped(destPath)
           && Types.mightContainsProperties(mutator.getType())
           && !isConvertable(existingMapping)) {
-        matchDestination(mutator.getTypeInfo(configuration));
+        matchDestination(mutator.getTypeInfo(configuration), destinationDepth + 1, sourceDepth);
       }
-
       propertyNameInfo.popDestination();
     }
 
@@ -164,7 +166,10 @@ class ImplicitMappingBuilder<S, D> {
    * {@code typeMapStore} for any existing TypeMaps and merging the mappings if one exists, else by
    * running the {@code matchingStrategy} against all accessors for the {@code sourceTypeInfo}.
    */
-  private void matchSource(TypeInfo<?> sourceTypeInfo, Mutator destinationMutator, boolean hitSameSourceType) {
+  private void matchSource(TypeInfo<?> sourceTypeInfo, Mutator destinationMutator, boolean hitSameSourceType, int sourceDepth) {
+    if (sourceDepth > 5) {
+      return;
+    }
     sourceTypes.add(sourceTypeInfo.getType());
 
     for (Map.Entry<String, Accessor> entry : sourceTypeInfo.getAccessors().entrySet()) {
@@ -227,11 +232,11 @@ class ImplicitMappingBuilder<S, D> {
           && !hitSameSourceType
           && Types.mightContainsProperties(accessor.getType())) {
         if (accessor instanceof ValueReaderPropertyInfo)
-          matchSource(accessor.getTypeInfo(configuration), destinationMutator, false);
+          matchSource(accessor.getTypeInfo(configuration), destinationMutator, false, sourceDepth);
         else if (!sourceTypes.contains(accessor.getType()))
-          matchSource(accessor.getTypeInfo(configuration), destinationMutator, false);
+          matchSource(accessor.getTypeInfo(configuration), destinationMutator, false, sourceDepth + 1);
         else
-          matchSource(accessor.getTypeInfo(configuration), destinationMutator, true);
+          matchSource(accessor.getTypeInfo(configuration), destinationMutator, true, sourceDepth + 1);
       }
 
       propertyNameInfo.popSource();
@@ -250,7 +255,7 @@ class ImplicitMappingBuilder<S, D> {
    * source to destination tokens * the weight that the order of properties are matched /
    * the total number of source and destination tokens. Currently this algorithm does not consider
    * class name tokens.
-   * 
+   *
    * @return closest matching mapping, else {@code null} if one could not be determined
    */
   private PropertyMappingImpl disambiguateMappings() {
