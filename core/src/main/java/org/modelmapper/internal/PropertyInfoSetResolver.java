@@ -20,6 +20,8 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.modelmapper.SkipMapping;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.config.Configuration.AccessLevel;
 import org.modelmapper.internal.util.Types;
@@ -33,7 +35,7 @@ import org.modelmapper.spi.ValueWriter;
 
 /**
  * Resolves sets of PropertyInfo for a type's accessors or mutators.
- * 
+ *
  * @author Jonathan Halterman
  */
 final class PropertyInfoSetResolver {
@@ -133,7 +135,8 @@ final class PropertyInfoSetResolver {
       properties.putAll(resolveProperties(initialType, superType, resolveRequest));
 
     for (M member : resolveRequest.propertyResolver.membersFor(type)) {
-      if (canAccessMember(member, resolveRequest.accessLevel)
+      if (member.getAnnotation(SkipMapping.class) == null
+          && canAccessMember(member, resolveRequest.accessLevel)
           && resolveRequest.propertyResolver.isValid(member)
           && resolveRequest.namingConvention.applies(member.getName(), resolveRequest.propertyType)) {
         String name = resolveRequest.nameTransformer.transform(member.getName(),
