@@ -69,6 +69,8 @@ public class InheritingConfiguration implements Configuration {
   private Boolean skipNullEnabled;
   private Boolean collectionsMergeEnabled;
   private Boolean useOSGiClassLoaderBridging;
+  private Integer maxSourceMappingDepth;
+  private Integer maxDestinationMappingDepth;
 
   /**
    * Creates an initial InheritingConfiguration.
@@ -130,6 +132,8 @@ public class InheritingConfiguration implements Configuration {
       preferNestedProperties = source.preferNestedProperties;
       skipNullEnabled = source.skipNullEnabled;
       collectionsMergeEnabled = source.collectionsMergeEnabled;
+      maxSourceMappingDepth = source.maxSourceMappingDepth;
+      maxDestinationMappingDepth = source.maxDestinationMappingDepth;
     }
   }
 
@@ -347,6 +351,16 @@ public class InheritingConfiguration implements Configuration {
   }
 
   @Override
+  public Integer getMaxSourceMappingDepth() {
+    return maxSourceMappingDepth;
+  }
+
+  @Override
+  public Integer getMaxDestinationMappingDepth() {
+    return maxDestinationMappingDepth;
+  }
+
+  @Override
   public Configuration setAmbiguityIgnored(boolean ignore) {
     this.ambiguityIgnored = ignore;
     return this;
@@ -465,6 +479,18 @@ public class InheritingConfiguration implements Configuration {
   public Configuration setSourceNamingConvention(NamingConvention namingConvention) {
     sourceNamingConvention = Assert.notNull(namingConvention);
     return this;
+  }
+
+  @Override
+  public Configuration setMaxSourceMappingDepth(Integer maxSourceMappingDepth) {
+    this.maxSourceMappingDepth = maxSourceMappingDepth;
+    return null;
+  }
+
+  @Override
+  public Configuration setMaxDestinationMappingDepth(Integer maxDestinationMappingDepth) {
+    this.maxDestinationMappingDepth = maxDestinationMappingDepth;
+    return null;
   }
 
   @Override

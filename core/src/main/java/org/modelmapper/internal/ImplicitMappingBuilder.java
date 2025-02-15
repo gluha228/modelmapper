@@ -95,7 +95,8 @@ class ImplicitMappingBuilder<S, D> {
    * {@code sourceTypeInfo}'s accessor hierarchy.
    */
   private void matchDestination(TypeInfo<?> destinationTypeInfo, int destinationDepth, int sourceDepth) {
-    if (destinationDepth > 5) {
+    if (configuration.getMaxDestinationMappingDepth() != null
+            && destinationDepth > configuration.getMaxDestinationMappingDepth()) {
       return;
     }
     destinationTypes.add(destinationTypeInfo.getType());
@@ -167,7 +168,8 @@ class ImplicitMappingBuilder<S, D> {
    * running the {@code matchingStrategy} against all accessors for the {@code sourceTypeInfo}.
    */
   private void matchSource(TypeInfo<?> sourceTypeInfo, Mutator destinationMutator, boolean hitSameSourceType, int sourceDepth) {
-    if (sourceDepth > 5) {
+    if (configuration.getMaxSourceMappingDepth() != null
+            && sourceDepth > configuration.getMaxSourceMappingDepth()) {
       return;
     }
     sourceTypes.add(sourceTypeInfo.getType());

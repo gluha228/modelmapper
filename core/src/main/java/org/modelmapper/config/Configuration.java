@@ -284,6 +284,24 @@ public interface Configuration {
   boolean isCollectionsMergeEnabled();
 
   /**
+   * Returns the limit for the number of the nested properties that are checked in source type
+   * while building type map with implicit mapping.
+   * When null, there will be no depth limit.
+   * Default is {@code null}.
+   * @see #setMaxSourceMappingDepth(Integer)
+   */
+  Integer getMaxSourceMappingDepth();
+
+  /**
+   * Returns the limit for the number of the nested properties that are checked in destination type
+   * while building type map with implicit mapping.
+   * When null, there will be no depth limit.
+   * Default is {@code null}.
+   * @see #setMaxDestinationMappingDepth(Integer)
+   */
+  Integer getMaxDestinationMappingDepth();
+
+  /**
    * Sets whether destination properties that match more than one source property should be ignored.
    * When true, ambiguous destination properties are skipped during the matching process. When
    * false, a ConfigurationException is thrown when ambiguous properties are encountered.
@@ -482,4 +500,20 @@ public interface Configuration {
    * @throws IllegalArgumentException if {@code namingConvention} is null
    */
   Configuration setSourceNamingConvention(NamingConvention namingConvention);
+
+  /**
+   * Sets the limit for the number of the nested properties that are checked in source type
+   * while building type map with implicit mapping.
+   * When null, there will be no depth limit.
+   * Default is {@code null}.
+   */
+  Configuration setMaxSourceMappingDepth(Integer maxSourceMappingDepth);
+
+  /**
+   * Sets the limit for the number of the nested properties that are checked in destination type
+   * while building type map with implicit mapping.
+   * When null, there will be no depth limit.
+   * Default is {@code null}.
+   */
+  Configuration setMaxDestinationMappingDepth(Integer maxDestinationMappingDepth);
 }
